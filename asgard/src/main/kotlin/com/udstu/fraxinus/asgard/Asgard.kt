@@ -1,4 +1,4 @@
-package com.udstu
+package com.udstu.fraxinus.asgard
 
 import io.ktor.application.*
 import io.ktor.response.*
