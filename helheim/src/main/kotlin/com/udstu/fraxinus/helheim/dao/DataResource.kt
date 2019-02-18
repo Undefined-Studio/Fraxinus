@@ -3,7 +3,6 @@ package com.udstu.fraxinus.helheim.dao
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object DataResource {
     fun init(databaseUrl: String, username: String, password: String) {
@@ -13,16 +12,10 @@ object DataResource {
             jdbcUrl = databaseUrl
             this.username = username
             this.password = password
-            isAutoCommit = false
+            isAutoCommit = true
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         }.also {
             it.validate()
         }))
-    }
-
-    fun <T> query(block: () -> T): T {
-        return transaction {
-            block()
-        }
     }
 }
