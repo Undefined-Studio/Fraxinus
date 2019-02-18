@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.*
 import io.ktor.jackson.*
 import com.udstu.fraxinus.helheim.dao.*
 import io.ktor.util.KtorExperimentalAPI
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -34,6 +36,10 @@ fun Application.module(testing: Boolean = false) {
         environment.config.propertyOrNull("database.username")?.getString()?:"",
         environment.config.propertyOrNull("database.password")?.getString()?:""
     )
+
+    transaction {
+        SchemaUtils.create(Capes, ProfileProperties, Profiles, Skins, UserProperties, Users)
+    }
 
     routing {
         get("/") {
