@@ -1,0 +1,24 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+group 'com.udstu'
+version '0.1.0'
+
+subprojects {
+    apply plugin: 'kotlin'
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = java_version
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = java_version
+    }
+}
+

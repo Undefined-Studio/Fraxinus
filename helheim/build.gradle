@@ -1,0 +1,7 @@
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.jetbrains.exposed:exposed:0.12.1'
+}
