@@ -1,9 +1,8 @@
 package com.udstu.fraxinus.helheim.dao
 
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.dao.*
 
-object Skins : Table("skin") {
-    val id = integer("id").primaryKey()
+object Skins : IntIdTable("skin") {
     val name = varchar("name", 40)
     val url = varchar("url", 255)
     val model = varchar("model", 20)

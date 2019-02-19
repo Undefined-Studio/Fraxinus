@@ -1,9 +1,8 @@
 package com.udstu.fraxinus.helheim.dao
 
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.dao.*
 
-object Capes : Table("cape") {
-    val id = integer("id").primaryKey()
+object Capes : IntIdTable("cape") {
     val name = varchar("name", 40)
     val url = varchar("url", 255)
     val uploadTime = datetime("upload_time")
