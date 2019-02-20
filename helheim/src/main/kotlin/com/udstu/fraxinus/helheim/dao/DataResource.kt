@@ -8,7 +8,7 @@ object DataResource {
     fun init(databaseUrl: String, username: String, password: String) {
         Database.connect(HikariDataSource(HikariConfig().apply {
             driverClassName = "com.mysql.jdbc.Driver"
-            maximumPoolSize = 3
+            maximumPoolSize = 5
             jdbcUrl = databaseUrl
             this.username = username
             this.password = password

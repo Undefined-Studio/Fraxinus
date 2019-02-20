@@ -1,5 +1,6 @@
 package com.udstu.fraxinus.asgard
 
+import com.fasterxml.jackson.annotation.*
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -8,9 +9,13 @@ import org.slf4j.event.*
 import io.ktor.routing.*
 import io.ktor.http.*
 import com.fasterxml.jackson.databind.*
+import com.udstu.fraxinus.asgard.controller.*
+import com.udstu.fraxinus.asgard.dto.*
+import com.udstu.fraxinus.asgard.exception.*
+import com.udstu.fraxinus.asgard.service.*
 import io.ktor.jackson.*
 import com.udstu.fraxinus.helheim.dao.*
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.*
 
@@ -27,7 +32,14 @@ fun Application.module(testing: Boolean = false) {
 
     install(ContentNegotiation) {
         jackson {
+            setSerializationInclusion(JsonInclude.Include.NON_NULL)
             enable(SerializationFeature.INDENT_OUTPUT)
+        }
+    }
+
+    install(StatusPages) {
+        exception<AsgardException> { cause ->
+            call.respond(cause.status, ErrorModel(cause.error, cause.message!!))
         }
     }
 
@@ -38,10 +50,11 @@ fun Application.module(testing: Boolean = false) {
     )
 
     transaction {
-        SchemaUtils.create(Capes, ProfileProperties, Profiles, Skins, UserProperties, Users)
+        SchemaUtils.create(Capes, ProfileProperties, Profiles, Skins, UserProperties, Users, Tokens)
     }
 
     routing {
+        authServer(AuthServerService())
         get("/") {
             call.respondText("Hello from Asgard!", contentType = ContentType.Text.Plain)
         }
