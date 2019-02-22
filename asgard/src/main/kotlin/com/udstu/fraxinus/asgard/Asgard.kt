@@ -18,6 +18,10 @@ import com.udstu.fraxinus.helheim.dao.*
 import io.ktor.util.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.*
+import org.koin.Logger.SLF4JLogger
+import org.koin.dsl.module
+import org.koin.ktor.ext.inject
+import org.koin.ktor.ext.installKoin
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -43,6 +47,10 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    installKoin {
+        modules(asgardDependencies)
+    }
+
     DataResource.init(
         environment.config.propertyOrNull("database.url")?.getString()?:"",
         environment.config.propertyOrNull("database.username")?.getString()?:"",
@@ -54,9 +62,15 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        authServer(AuthServerService())
+        authServer()
         get("/") {
             call.respondText("Hello from Asgard!", contentType = ContentType.Text.Plain)
         }
     }
+}
+
+// Declare Dependencies
+
+val asgardDependencies = module {
+    single { AuthServerService }
 }

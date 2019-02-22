@@ -7,8 +7,12 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import org.koin.ktor.ext.*
 
-fun Route.authServer(authServerService: AuthServerService) {
+fun Route.authServer() {
+
+    val authServerService by inject<AuthServerService>()
+
     post("/authserver/authenticate") {
         val req = call.receive<LoginRequest>()
         call.respond(authServerService.authenticate(req))
