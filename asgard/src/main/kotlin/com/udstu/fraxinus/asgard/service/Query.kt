@@ -22,55 +22,68 @@ fun generateUserModel(result: ResultRow): UserModel {
     })
 }
 
+fun generateProfileSimpleModel(result: ResultRow): ProfileModel {
+    val profileId = result[Profiles.id]
+    val profileName = result[Profiles.name]
+
+    return ProfileModel(
+        profileId,
+        profileName
+    )
+}
 
 fun generateProfileModel(result: ResultRow): ProfileModel {
     val profileId = result[Profiles.id]
     val profileName = result[Profiles.name]
     val profileSkinId = result[Profiles.skinId]
     val profileCapeId = result[Profiles.capeId]
+
+    val properties = ProfileProperties.select {
+        ProfileProperties.profileId eq profileId
+    }.map { profilePropertyResult ->
+        if (profileSkinId == null && profileCapeId == null)
+            TexturePropertyModel(
+                profileId,
+                profileName,
+                profilePropertyResult[ProfileProperties.timestamp].millis
+            )
+        else {
+            val metadata = mutableMapOf<String, TextureModel>()
+
+            // 生成Cape信息
+            if (profileCapeId != null) {
+                metadata[TextureType.CAPE.toString()] = Capes.select {
+                    Capes.id eq profileCapeId
+                }.map {
+                    CapeModel(it[Capes.url])
+                }.firstOrNull() ?: throw AsgardException.IllegalArgumentException(AsgardException.CAPE_NOT_FOUND)
+            }
+
+            // 生成Skin信息
+            if (profileSkinId != null) {
+                metadata[TextureType.CAPE.toString()] = Skins.select {
+                    Skins.id eq profileSkinId
+                }.map {
+                    SkinModel(
+                        it[Skins.url],
+                        it[Skins.model]
+                    )
+                }.firstOrNull() ?: throw AsgardException.IllegalArgumentException(AsgardException.CAPE_NOT_FOUND)
+            }
+
+            TexturePropertyModel(
+                profileId,
+                profileName,
+                profilePropertyResult[ProfileProperties.timestamp].millis,
+                metadata
+            )
+        }
+    }
+
     return ProfileModel(
         profileId,
         profileName,
-        ProfileProperties.select {
-            ProfileProperties.profileId eq profileId
-        }.map { profilePropertyResult ->
-            if (profileSkinId == null && profileCapeId == null)
-                TexturePropertyModel(
-                    profileId,
-                    profileName,
-                    profilePropertyResult[ProfileProperties.timestamp].millis
-                )
-            else {
-                val metadata = mutableMapOf<String, TextureModel>()
-
-                // 生成Cape信息
-                if (profileCapeId != null) {
-                    metadata[TextureType.CAPE.toString()] = Capes.select {
-                        Capes.id eq profileCapeId
-                    }.map {
-                        CapeModel(it[Capes.url])
-                    }.firstOrNull() ?: throw AsgardException.IllegalArgumentException(AsgardException.CAPE_NOT_FOUND)
-                }
-
-                // 生成Skin信息
-                if (profileSkinId != null) {
-                    metadata[TextureType.CAPE.toString()] = Skins.select {
-                        Skins.id eq profileSkinId
-                    }.map {
-                        SkinModel(
-                            it[Skins.url],
-                            it[Skins.model]
-                        )
-                    }.firstOrNull() ?: throw AsgardException.IllegalArgumentException(AsgardException.CAPE_NOT_FOUND)
-                }
-
-                TexturePropertyModel(
-                    profileId,
-                    profileName,
-                    profilePropertyResult[ProfileProperties.timestamp].millis,
-                    metadata
-                )
-            }
-        }
+        if (properties.isEmpty()) null
+        else properties
     )
 }

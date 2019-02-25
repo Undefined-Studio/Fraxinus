@@ -23,5 +23,6 @@ dependencies {
     compile "io.ktor:ktor-server-core:$ktor_version"
     compile "org.koin:koin-ktor:$koin_ktor_version"
     compile "io.ktor:ktor-jackson:$ktor_version"
+    compile 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
     testCompile "io.ktor:ktor-server-tests:$ktor_version"
 }

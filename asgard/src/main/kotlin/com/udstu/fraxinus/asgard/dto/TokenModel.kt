@@ -5,8 +5,8 @@ import org.joda.time.DateTime
 class TokenModel(
     val accessToken: String,
     val clientToken: String,
-    val selectedCharacter: String?,
-    val userId: String,
+    val selectedCharacter: ProfileModel?,
+    val user: UserModel,
     val createdTime: DateTime
 ) {
 

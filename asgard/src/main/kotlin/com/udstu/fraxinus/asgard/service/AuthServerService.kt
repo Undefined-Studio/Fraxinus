@@ -6,45 +6,46 @@ import com.udstu.fraxinus.helheim.dao.*
 import com.udstu.fraxinus.helheim.util.encodeMD5
 import com.udstu.fraxinus.helheim.util.randomUsignedUUID
 import org.jetbrains.exposed.sql.*
-import org.joda.time.DateTime
-import org.slf4j.LoggerFactory
+import org.slf4j.*
 
-class AuthServerService {
+class AuthServerService(
+    private val tokenStore: TokenStore
+) {
     suspend fun authenticate(req: LoginRequest): LoginResponse {
         // 查询用户
         val user = passwordAuthenticated(req.username, req.password)
 
         val token = if (req.clientToken == null) {
-            acquireToken(user, randomUsignedUUID())
+            tokenStore.acquireToken(user, randomUsignedUUID())
         } else {
-            acquireToken(user, req.clientToken)
+            tokenStore.acquireToken(user, req.clientToken)
         }.also {
-            saveToken(it)
+            tokenStore.saveToken(it)
         }
 
         val availableProfiles = query {
             Profiles.select {
                 Profiles.userId eq user.id
             }.map {
-                generateProfileModel(it)
+                generateProfileSimpleModel(it)
             }
         }
 
-        if (token.selectedCharacter != null) {
+        if (req.requestUser) {
             return LoginResponse(
                 token.accessToken,
                 token.clientToken,
                 availableProfiles,
-                availableProfiles.firstOrNull {
-                    it.id == token.selectedCharacter
-                } ?: throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
+                token.selectedCharacter,
+                user
             )
         }
 
         return LoginResponse(
             token.accessToken,
             token.clientToken,
-            availableProfiles
+            availableProfiles,
+            token.selectedCharacter
         )
     }
 
@@ -61,42 +62,30 @@ class AuthServerService {
             if (name != req.selectedProfile.name) throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
         }
 
-        val oldToken = validateAndConsumeToken(req.accessToken, req.clientToken)
+        val oldToken = tokenStore.validateAndConsumeToken(req.accessToken, req.clientToken)
 
-        val user = query {
-            Users.select {
-                Users.id eq oldToken.userId
-            }.first().let {
-                generateUserModel(it)
-            }
-        }
-
-        val newToken = acquireToken(
-            user,
+        val newToken = tokenStore.acquireToken(
+            oldToken.user,
             oldToken.clientToken,
-            if (req.selectedProfile == null) {
-                null
-            } else {
-                req.selectedProfile.id
-            }
+            req.selectedProfile
         ).also {
-            saveToken(it)
+            tokenStore.saveToken(it)
         }
 
         if (req.requestUser) {
-            return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, req.selectedProfile, user)
+            return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, newToken.selectedCharacter, newToken.user)
         }
 
-        return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, req.selectedProfile)
+        return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, newToken.selectedCharacter)
     }
 
     suspend fun validate(req: ValidateRequest) {
-        validateToken(req.accessToken, req.clientToken)
+        tokenStore.validateToken(req.accessToken, req.clientToken)
     }
 
     suspend fun invalidate(req: InvalidateRequest) {
         if (req.accessToken == null) throw AsgardException.IllegalArgumentException(AsgardException.NO_CREDENTIALS)
-        validateAndConsumeToken(req.accessToken, req.clientToken)
+        tokenStore.validateAndConsumeToken(req.accessToken, req.clientToken)
     }
 
     suspend fun signOut(req: SignOutRequest) {
@@ -112,77 +101,6 @@ class AuthServerService {
         }
     }
 
-    private suspend fun acquireToken(user: UserModel, clientToken: String, profileId: String? = null): TokenModel {
-        val accessToken = randomUsignedUUID()
-        if (profileId == null) {
-            val profileIds = query {
-                Profiles.select {
-                    Profiles.userId eq user.id
-                }.map {
-                    it[Profiles.id]
-                }
-            }
-            return if (profileIds.size == 1) {
-                TokenModel(accessToken, clientToken, profileIds.first(), user.id, DateTime.now())
-            } else {
-                TokenModel(accessToken, clientToken, null, user.id, DateTime.now())
-            }
-        } else {
-            val userId = query {
-                Profiles.select { Profiles.id eq profileId }.map{
-                    it[Profiles.userId]
-                }.firstOrNull() ?: throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
-            }
-            return if (userId == user.id) {
-                TokenModel(accessToken, clientToken, profileId, user.id, DateTime.now())
-            } else {
-                throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
-            }
-        }
-    }
-
-    private suspend fun validateAndConsumeToken(accessToken: String?, clientToken: String?): TokenModel {
-        if (accessToken == null) throw AsgardException.IllegalArgumentException(AsgardException.NO_CREDENTIALS)
-
-        // 检查token是否合法
-        val token = validateToken(accessToken, clientToken)
-
-        consumeToken(token.accessToken)
-
-        if (token.isFullyExpired()) throw AsgardException.IllegalArgumentException(AsgardException.INVALID_TOKEN)
-
-        return token
-    }
-
-    private suspend fun validateToken(accessToken: String, clientToken: String?): TokenModel {
-        return query {
-            Tokens.select {
-                Tokens.accessToken eq accessToken
-            }.map {
-
-                if (clientToken != null && clientToken != it[Tokens.clientToken]) {
-                    throw AsgardException.IllegalArgumentException(AsgardException.INVALID_TOKEN)
-                }
-
-                TokenModel(
-                    it[Tokens.accessToken],
-                    it[Tokens.clientToken],
-                    it[Tokens.profileId],
-                    it[Tokens.userId],
-                    it[Tokens.createdTime]
-                )
-            }.firstOrNull() ?: throw AsgardException.IllegalArgumentException(AsgardException.INVALID_TOKEN)
-        }
-    }
-
-    private suspend fun consumeToken(accessToken: String) {
-        query {
-            Tokens.deleteWhere {
-                Tokens.accessToken eq accessToken
-            }
-        }
-    }
-
     private suspend fun passwordAuthenticated(username: String, password: String): UserModel {
         return query {
             Users.select {
@@ -191,19 +109,6 @@ class AuthServerService {
                 generateUserModel(it)
             }
         } ?: throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_CREDENTIALS)
-    }
-
-    private suspend fun saveToken(model: TokenModel) {
-        query {
-            val id = Tokens.insertAndGetId {
-                it[accessToken] = model.accessToken
-                it[clientToken] = model.clientToken
-                it[profileId] = model.selectedCharacter
-                it[createdTime] = DateTime.now()
-                it[userId] = model.userId
-            }
-            logger.info("Add new token(id: $id) for user(id: ${model.userId})")
-        }
     }
 
     companion object {

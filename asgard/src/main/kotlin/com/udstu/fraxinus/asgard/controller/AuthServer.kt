@@ -1,6 +1,7 @@
 package com.udstu.fraxinus.asgard.controller
 
 import com.udstu.fraxinus.asgard.dto.*
+import com.udstu.fraxinus.asgard.exception.AsgardException
 import com.udstu.fraxinus.asgard.service.*
 import io.ktor.application.*
 import io.ktor.http.*
@@ -31,8 +32,12 @@ fun Route.authServer() {
 
     post("/authserver/invalidate") {
         val req = call.receive<InvalidateRequest>()
-        authServerService.invalidate(req)
-        call.respond(HttpStatusCode.NoContent)
+        try {
+            authServerService.invalidate(req)
+        } catch (e: AsgardException) {
+        } finally {
+            call.respond(HttpStatusCode.NoContent)
+        }
     }
 
     post("/authserver/signout") {

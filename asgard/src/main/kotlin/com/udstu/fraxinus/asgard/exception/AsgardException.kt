@@ -19,6 +19,9 @@ class AsgardException(
         const val ACCESS_DENIED = "Access denied."
         const val PROFILE_NOT_FOUND = "No such profile."
         const val CAPE_NOT_FOUND = "No such cape."
-        const val NO_CREDENTIALS = "credentials is null."
+        const val NO_CREDENTIALS = "Credentials is null."
+        const val NULL_SERVER_ID = "ServerId is null."
+        const val NULL_SELECTED_PROFILE = "SelectedProfile is null."
+        const val INVALID_PROFILE = "Invalid profile"
     }
 }
