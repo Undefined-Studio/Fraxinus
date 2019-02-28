@@ -71,7 +71,7 @@ class AuthServerService {
 
     suspend fun invalidate(req: InvalidateRequest) {
         if (req.accessToken == null) throw AsgardException.IllegalArgumentException(AsgardException.NO_CREDENTIALS)
-        TokenStore.authenticateAndConsume(req.accessToken, req.clientToken)
+        TokenStore.authenticateAndConsume(req.accessToken, null)
     }
 
     suspend fun signOut(req: SignOutRequest) {
