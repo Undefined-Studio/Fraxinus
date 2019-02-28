@@ -1,9 +1,9 @@
 package com.udstu.fraxinus.asgard.dao
 
-import com.udstu.fraxinus.asgard.dao.entity.CapeEntity
+import com.udstu.fraxinus.asgard.dao.entity.*
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.*
-import org.joda.time.DateTime
+import org.joda.time.*
 
 object Capes : IntIdTable("cape"), Repository<CapeEntity, Int> {
     val name = varchar("name", 40)

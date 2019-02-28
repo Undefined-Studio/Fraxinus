@@ -1,6 +1,6 @@
 package com.udstu.fraxinus.asgard.dao
 
-import com.udstu.fraxinus.asgard.dao.entity.ProfileEntity
+import com.udstu.fraxinus.asgard.dao.entity.*
 import org.jetbrains.exposed.sql.*
 
 object Profiles : Table("profile"), Repository<ProfileEntity, String> {

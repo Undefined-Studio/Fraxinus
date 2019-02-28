@@ -21,7 +21,7 @@ fun Route.sessionServer() {
     get("/sessionserver/session/minecraft/hasJoined") {
         val params =  call.request.queryParameters
         val profile = sessionServerService.hasJoinedServer(
-            params["serverIp"],
+            params["serverId"],
             params["username"],
             params["ip"]
         )

@@ -1,7 +1,7 @@
 package com.udstu.fraxinus.asgard.exception
 
-import io.ktor.http.HttpStatusCode
-import java.lang.RuntimeException
+import io.ktor.http.*
+import java.lang.*
 
 class AsgardException(
     val status: HttpStatusCode,

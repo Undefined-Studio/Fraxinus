@@ -4,7 +4,6 @@ import com.udstu.fraxinus.asgard.core.*
 import com.udstu.fraxinus.asgard.core.store.*
 import com.udstu.fraxinus.asgard.dto.*
 import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.asgard.util.*
 import org.slf4j.*
 
 class AuthServerService {

@@ -1,6 +1,6 @@
 package com.udstu.fraxinus.asgard.dao
 
-import com.udstu.fraxinus.asgard.dao.entity.UserPropertyEntity
+import com.udstu.fraxinus.asgard.dao.entity.*
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.*
 

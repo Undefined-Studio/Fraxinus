@@ -9,7 +9,8 @@ class TextureProperty(
     name: String,
     timestamp: Long,
     profileName: String,
-    val texture: Map<String, Texture>) : ProfileProperty(name, timestamp, profileName) {
+    profileId: String,
+    val textures: Map<String, Texture>) : ProfileProperty(name, timestamp, profileName, profileId) {
 
     override fun generateValue(): String {
         val mapper = ObjectMapper()

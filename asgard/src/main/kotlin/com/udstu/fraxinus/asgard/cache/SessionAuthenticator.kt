@@ -2,6 +2,7 @@ package com.udstu.fraxinus.asgard.cache
 
 import com.googlecode.concurrentlinkedhashmap.*
 import com.udstu.fraxinus.asgard.core.*
+import com.udstu.fraxinus.asgard.core.store.*
 import kotlinx.coroutines.*
 import java.time.*
 
@@ -41,7 +42,7 @@ class SessionAuthenticator(private val expireDuration: Duration = Duration.ofSec
             return null
         }
 
-        return auth.token.boundCharacter
+        return CharacterStore.getCharacterById(auth.token.boundCharacter.id, false)
     }
 
     companion object {

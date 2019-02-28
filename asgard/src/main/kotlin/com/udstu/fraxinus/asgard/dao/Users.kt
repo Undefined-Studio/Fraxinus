@@ -1,6 +1,6 @@
 package com.udstu.fraxinus.asgard.dao
 
-import com.udstu.fraxinus.asgard.dao.entity.UserEntity
+import com.udstu.fraxinus.asgard.dao.entity.*
 import org.jetbrains.exposed.sql.*
 
 object Users : Table("user"), Repository<UserEntity, String> {

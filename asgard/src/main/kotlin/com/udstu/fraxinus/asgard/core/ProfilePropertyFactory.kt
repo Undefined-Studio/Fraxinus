@@ -1,15 +1,12 @@
 package com.udstu.fraxinus.asgard.core
 
-import com.udstu.fraxinus.asgard.core.base.ProfileProperty
-import com.udstu.fraxinus.asgard.core.base.Texture
-import com.udstu.fraxinus.asgard.dao.Capes
-import com.udstu.fraxinus.asgard.dao.Skins
-import com.udstu.fraxinus.asgard.dao.entity.ProfileEntity
-import com.udstu.fraxinus.asgard.dao.entity.ProfilePropertyEntity
-import com.udstu.fraxinus.asgard.enum.TextureType
+import com.udstu.fraxinus.asgard.core.base.*
+import com.udstu.fraxinus.asgard.dao.*
+import com.udstu.fraxinus.asgard.dao.entity.*
+import com.udstu.fraxinus.asgard.enum.*
 
 object ProfilePropertyFactory {
-    const val TEXTURE = "texture"
+    const val TEXTURE = "textures"
 
     suspend fun create(profileEntity: ProfileEntity, profilePropertyEntity: ProfilePropertyEntity): ProfileProperty? {
         return when(profilePropertyEntity.name.toLowerCase()) {
@@ -36,6 +33,7 @@ object ProfilePropertyFactory {
                     profilePropertyEntity.name,
                     profilePropertyEntity.timestamp.time,
                     profilePropertyEntity.profileName,
+                    profilePropertyEntity.profileId,
                     textures
                 )
             }

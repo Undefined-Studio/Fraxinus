@@ -3,11 +3,9 @@ package com.udstu.fraxinus.asgard
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.http.*
 import com.udstu.fraxinus.asgard.controller.*
-import com.udstu.fraxinus.asgard.dto.ServerMetaModel
-import com.udstu.fraxinus.asgard.server.ServerConfig
-import com.udstu.fraxinus.asgard.server.startup
+import com.udstu.fraxinus.asgard.dto.*
+import com.udstu.fraxinus.asgard.server.*
 import io.ktor.util.*
 import org.koin.ktor.ext.inject
 

@@ -1,7 +1,6 @@
 package com.udstu.fraxinus.asgard.dao
 
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.*
 import org.jetbrains.exposed.sql.*
 
 object DataResource {

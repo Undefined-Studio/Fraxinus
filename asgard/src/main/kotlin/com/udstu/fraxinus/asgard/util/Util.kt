@@ -1,6 +1,6 @@
 package com.udstu.fraxinus.asgard.util
 
-import java.security.MessageDigest
+import java.security.*
 import java.util.*
 
 fun String.encodeMD5(): String {

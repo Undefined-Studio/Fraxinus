@@ -1,6 +1,6 @@
 package com.udstu.fraxinus.asgard.core
 
-import com.udstu.fraxinus.asgard.core.base.ProfileProperty
+import com.udstu.fraxinus.asgard.core.base.*
 import com.udstu.fraxinus.asgard.dto.*
 
 class Character(val id: String, val name: String, val properties: List<ProfileProperty>? = null) {
