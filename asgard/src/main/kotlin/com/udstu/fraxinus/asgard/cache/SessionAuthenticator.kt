@@ -1,9 +1,8 @@
 package com.udstu.fraxinus.asgard.cache
 
 import com.googlecode.concurrentlinkedhashmap.*
-import com.udstu.fraxinus.asgard.dto.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.udstu.fraxinus.asgard.core.*
+import kotlinx.coroutines.*
 import java.time.*
 
 class SessionAuthenticator(private val expireDuration: Duration = Duration.ofSeconds(30L)) {
@@ -18,7 +17,7 @@ class SessionAuthenticator(private val expireDuration: Duration = Duration.ofSec
         block(store)
     }
 
-    suspend fun joinServer(token: TokenModel, serverId: String, ip: String?) {
+    suspend fun joinServer(token: Token, serverId: String, ip: String?) {
         storeOps {
             this[serverId] = SessionAuthentication(
                 serverId,
@@ -29,20 +28,20 @@ class SessionAuthenticator(private val expireDuration: Duration = Duration.ofSec
         }
     }
 
-    suspend fun verifyUser(username: String, serverId: String, ip: String?): ProfileModel? {
+    suspend fun verifyUser(username: String, serverId: String, ip: String?): Character? {
         val auth = storeOps {
             remove(serverId)
         }
 
         if (auth == null
             || System.currentTimeMillis() > auth.createdTime + expireDuration.toMillis()
-            || auth.token.selectedCharacter == null
-            || auth.token.selectedCharacter.name != username
+            || auth.token.boundCharacter == null
+            || auth.token.boundCharacter.name != username
             || (ip != null && ip != auth.ip)) {
             return null
         }
 
-        return auth.token.selectedCharacter
+        return auth.token.boundCharacter
     }
 
     companion object {
@@ -50,7 +49,7 @@ class SessionAuthenticator(private val expireDuration: Duration = Duration.ofSec
 
         data class SessionAuthentication(
             val serverId: String,
-            val token: TokenModel,
+            val token: Token,
             val ip: String?,
             val createdTime: Long
         )

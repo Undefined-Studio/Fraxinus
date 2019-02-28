@@ -1,23 +1,27 @@
 package com.udstu.fraxinus.asgard.service
 
 import com.udstu.fraxinus.asgard.cache.*
+import com.udstu.fraxinus.asgard.core.*
+import com.udstu.fraxinus.asgard.core.store.CharacterStore
+import com.udstu.fraxinus.asgard.core.store.TokenStore
 import com.udstu.fraxinus.asgard.dto.*
 import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.helheim.dao.*
-import org.jetbrains.exposed.sql.*
+import com.udstu.fraxinus.asgard.server.ServerConfig
+import java.security.Signature
+import java.util.*
 
 class SessionServerService(
     private val authenticator: SessionAuthenticator,
-    private val tokenStore: TokenStore
+    private val config: ServerConfig
 ) {
 
     suspend fun joinServer(req: JoinServerRequest, serverIp: String?) {
-        if (req.accessToken == null) throw AsgardException.IllegalArgumentException(AsgardException.NULL_SERVER_ID)
+        if (req.serverId == null) throw AsgardException.IllegalArgumentException(AsgardException.NULL_SERVER_ID)
         if (req.selectedProfile == null) throw AsgardException.IllegalArgumentException(AsgardException.NULL_SELECTED_PROFILE)
 
-        val token = tokenStore.validateToken(req.accessToken, null)
+        val token = authenticate(req.accessToken, null)
 
-        if (token.selectedCharacter == null || token.selectedCharacter.id != req.selectedProfile)
+        if (token.boundCharacter == null || token.boundCharacter.id != req.selectedProfile)
             throw AsgardException.IllegalArgumentException(AsgardException.INVALID_PROFILE)
 
         authenticator.joinServer(token, req.serverId, serverIp)
@@ -25,7 +29,7 @@ class SessionServerService(
 
     suspend fun hasJoinedServer(serverId: String?, username: String?, ip: String?): ProfileModel? {
         if (serverId != null && username != null) {
-            return authenticator.verifyUser(username, serverId, ip)
+            return authenticator.verifyUser(username, serverId, ip)?.toProfileModel()
         }
 
         return null
@@ -34,28 +38,38 @@ class SessionServerService(
     suspend fun findProfile(profileId: String?, unsigned: Boolean = true): ProfileModel? {
         if (profileId == null) return null
 
-        return query {
-            Profiles.select {
-                Profiles.id eq profileId
-            }.map {
-                if (unsigned) {
-                    generateProfileModel(it)
-                } else {
-                    generateProfileModel(it)
+        return CharacterStore.getCharacterById(profileId, false)?.run {
+            toProfileModel().let {
+                it.apply {
+                    if (!unsigned) {
+                        properties = properties!!.map { property ->
+                            val signature = Signature.getInstance("SHA1withRSA")
+                            signature.initSign(config.privateKey)
+                            signature.update(property.getValue("value").toByteArray())
+
+                            mapOf(
+                                "name" to property.getValue("name"),
+                                "value" to property.getValue("value"),
+                                "signature" to Base64.getEncoder().encodeToString(signature.sign())
+                            )
+                        }
+                    }
                 }
-            }.firstOrNull()
+            }
         }
     }
 
     suspend fun queryProfiles(req: List<String>) : List<ProfileModel> {
         return req.mapNotNull {
-            query {
-                Profiles.select {
-                    Profiles.name eq it
-                }.map { result ->
-                    generateProfileSimpleModel(result)
-                }.firstOrNull()
-            }
+            CharacterStore.getCharacterByName(it)?.toProfileModel()
         }
+    }
+
+    private suspend fun authenticate(accessToken: String?, clientToken: String?): Token {
+        if (accessToken == null) {
+            throw AsgardException.IllegalArgumentException(AsgardException.NO_CREDENTIALS)
+        }
+
+        return TokenStore.authenticate(accessToken, clientToken) ?: throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_TOKEN)
     }
 }

@@ -6,7 +6,7 @@ import com.udstu.fraxinus.asgard.cache.*
 import com.udstu.fraxinus.asgard.dto.*
 import com.udstu.fraxinus.asgard.exception.*
 import com.udstu.fraxinus.asgard.service.*
-import com.udstu.fraxinus.helheim.dao.*
+import com.udstu.fraxinus.asgard.dao.*
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.jackson.*
@@ -18,7 +18,11 @@ import org.jetbrains.exposed.sql.transactions.*
 import org.koin.dsl.*
 import org.koin.ktor.ext.*
 import org.slf4j.event.*
+import java.security.KeyFactory
+import java.security.PrivateKey
+import java.security.spec.PKCS8EncodedKeySpec
 import java.time.*
+import java.util.*
 
 @KtorExperimentalAPI
 fun Application.installDataResource() {
@@ -58,27 +62,35 @@ fun Application.startup() {
 
     // Declare Dependencies
     val asgardDependencies = module {
-        single { TokenStore() }
-        single { AuthServerService(get()) }
+        single { AuthServerService() }
         single { SessionAuthenticator(Duration.ofSeconds(
             environment.config.propertyOrNull("asgard.session.expireDuration")?.getString()?.toLong()?:15L
         )) }
         single { SessionServerService(get(), get()) }
         single {
-            val serverName = environment.config.propertyOrNull("asgard.serverName")?.getString()?:"Asgard"
-            val implementationName = environment.config.propertyOrNull("asgard.implementationName")?.getString()?:"asgard"
-            val implementationVersion = environment.config.propertyOrNull("asgard.implementationVersion")?.getString()?:"dev"
-            val skinDomains = environment.config.propertyOrNull("asgard.skinDomains")?.getList()?: listOf(".*.com")
-            val pubKey = environment.config.propertyOrNull("asgard.publicKey")?.getString()?:"pub-key"
-            ServerMetaModel(
-                mapOf(
-                    "serverName" to serverName,
-                    "implementationName" to implementationName,
-                    "implementationVersion" to implementationVersion
-                ),
-                skinDomains,
-                pubKey
-            )}
+
+            val keyStr = (environment.config.propertyOrNull("asgard.privateKey")?.getString() ?: "pri-key")
+                .replace(" ", "")
+                .split('\n')
+                .filterNot {
+                    it.startsWith('-')
+                }.joinToString("")
+
+            val factory = KeyFactory.getInstance("rsa")
+
+            val spec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyStr))
+
+            val key = factory.generatePrivate(spec)
+
+            ServerConfig(
+                environment.config.propertyOrNull("asgard.publicKey")?.getString() ?: "pub-key",
+                key,
+                environment.config.propertyOrNull("asgard.serverName")?.getString() ?: "Asgard",
+                environment.config.propertyOrNull("asgard.implementationName")?.getString() ?: "asgard",
+                environment.config.propertyOrNull("asgard.implementationVersion")?.getString() ?: "dev",
+                environment.config.propertyOrNull("asgard.skinDomains")?.getList() ?: listOf(".*.com")
+            )
+        }
     }
 
     installKoin {
@@ -87,3 +99,12 @@ fun Application.startup() {
 
     installDataResource()
 }
+
+data class ServerConfig(
+    val publicKey: String,
+    val privateKey: PrivateKey,
+    val serverName: String,
+    val implementationName: String,
+    val implementationVersion: String,
+    val skinDomains: List<String>
+)

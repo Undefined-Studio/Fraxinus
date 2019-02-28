@@ -16,7 +16,7 @@ fun Route.authServer() {
 
     post("/authserver/authenticate") {
         val req = call.receive<LoginRequest>()
-        call.respond(authServerService.authenticate(req))
+        call.respond(authServerService.login(req))
     }
 
     post("/authserver/refresh") {

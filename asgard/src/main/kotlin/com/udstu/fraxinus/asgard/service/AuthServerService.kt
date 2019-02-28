@@ -1,114 +1,101 @@
 package com.udstu.fraxinus.asgard.service
 
+import com.udstu.fraxinus.asgard.core.*
+import com.udstu.fraxinus.asgard.core.store.*
 import com.udstu.fraxinus.asgard.dto.*
 import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.helheim.dao.*
-import com.udstu.fraxinus.helheim.util.encodeMD5
-import com.udstu.fraxinus.helheim.util.randomUsignedUUID
-import org.jetbrains.exposed.sql.*
+import com.udstu.fraxinus.asgard.util.*
 import org.slf4j.*
 
-class AuthServerService(
-    private val tokenStore: TokenStore
-) {
-    suspend fun authenticate(req: LoginRequest): LoginResponse {
+class AuthServerService {
+    suspend fun login(req: LoginRequest): LoginResponse {
         // 查询用户
-        val user = passwordAuthenticated(req.username, req.password)
+        val user = UserStore.getAuthenticatedUser(req.username, req.password)?: throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_CREDENTIALS)
 
-        val token = if (req.clientToken == null) {
-            tokenStore.acquireToken(user, randomUsignedUUID())
-        } else {
-            tokenStore.acquireToken(user, req.clientToken)
-        }.also {
-            tokenStore.saveToken(it)
-        }
-
-        val availableProfiles = query {
-            Profiles.select {
-                Profiles.userId eq user.id
-            }.map {
-                generateProfileSimpleModel(it)
-            }
-        }
+        val token = TokenStore.acquireToken(user, req.clientToken)
 
         if (req.requestUser) {
             return LoginResponse(
                 token.accessToken,
                 token.clientToken,
-                availableProfiles,
-                token.selectedCharacter,
-                user
+                user.characters.map {
+                    it.toProfileModel()
+                },
+                token.boundCharacter?.run {
+                    toProfileModel()
+                },
+                user.toUserModel()
             )
         }
 
         return LoginResponse(
             token.accessToken,
             token.clientToken,
-            availableProfiles,
-            token.selectedCharacter
+            user.characters.map {
+                it.toProfileModel()
+            },
+            token.boundCharacter?.run {
+                toProfileModel()
+            }
         )
     }
 
     suspend fun refresh(req: RefreshTokenRequest): RefreshTokenResponse {
-        if (req.selectedProfile != null) {
-            val name = query {
-                Profiles.select {
-                    Profiles.id eq req.selectedProfile.id
-                }.map {
-                    it[Profiles.name]
-                }.firstOrNull() ?: throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
-            }
-
-            if (name != req.selectedProfile.name) throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
+        val characterToSelect = if (req.selectedProfile == null) {
+            null
+        } else {
+            CharacterStore.getCharacterById(req.selectedProfile.id)?.also {
+                if (it.name != req.selectedProfile.name) {
+                    throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
+                }
+            }?: throw AsgardException.IllegalArgumentException(AsgardException.PROFILE_NOT_FOUND)
         }
 
-        val oldToken = tokenStore.validateAndConsumeToken(req.accessToken, req.clientToken)
+        val oldToken = authenticateAndConsume(req.accessToken, req.clientToken)
 
-        val newToken = tokenStore.acquireToken(
+        val newToken = TokenStore.acquireToken(
             oldToken.user,
             oldToken.clientToken,
-            req.selectedProfile
-        ).also {
-            tokenStore.saveToken(it)
-        }
+            characterToSelect ?: oldToken.boundCharacter
+        )
 
         if (req.requestUser) {
-            return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, newToken.selectedCharacter, newToken.user)
+            return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, newToken.boundCharacter?.toProfileModel(), newToken.user.toUserModel())
         }
 
-        return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, newToken.selectedCharacter)
+        return RefreshTokenResponse(newToken.accessToken, newToken.clientToken, newToken.boundCharacter?.toProfileModel())
     }
 
     suspend fun validate(req: ValidateRequest) {
-        tokenStore.validateToken(req.accessToken, req.clientToken)
+        authenticate(req.accessToken, req.clientToken)
     }
 
     suspend fun invalidate(req: InvalidateRequest) {
         if (req.accessToken == null) throw AsgardException.IllegalArgumentException(AsgardException.NO_CREDENTIALS)
-        tokenStore.validateAndConsumeToken(req.accessToken, req.clientToken)
+        TokenStore.authenticateAndConsume(req.accessToken, req.clientToken)
     }
 
     suspend fun signOut(req: SignOutRequest) {
-        val user = passwordAuthenticated(req.username, req.password)
+        val user = UserStore.getAuthenticatedUser(req.username, req.password) ?: throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_CREDENTIALS)
 
         // 吊销所有Token
-        query {
-            Tokens.deleteWhere {
-                Tokens.userId eq user.id
-            }
-        }.also {
-            logger.info("Revoke all tokens of User(id: ${user.id})")
-        }
+        TokenStore.invokeAllToken(user)
     }
 
-    private suspend fun passwordAuthenticated(username: String, password: String): UserModel {
-        return query {
-            Users.select {
-                Users.username eq username and (Users.password eq password.encodeMD5())
-            }.firstOrNull()?.let {
-                generateUserModel(it)
-            }
-        } ?: throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_CREDENTIALS)
+    private suspend fun authenticateAndConsume(accessToken: String?, clientToken: String?): Token {
+        if (accessToken == null) {
+            throw AsgardException.IllegalArgumentException(AsgardException.NO_CREDENTIALS)
+        }
+
+        return TokenStore.authenticateAndConsume(accessToken, clientToken) ?: throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_TOKEN)
+    }
+
+    private suspend fun authenticate(accessToken: String?, clientToken: String?): Token {
+        if (accessToken == null) {
+            throw AsgardException.IllegalArgumentException(AsgardException.NO_CREDENTIALS)
+        }
+
+        return TokenStore.authenticate(accessToken, clientToken) ?: throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_TOKEN)
     }
 
     companion object {
