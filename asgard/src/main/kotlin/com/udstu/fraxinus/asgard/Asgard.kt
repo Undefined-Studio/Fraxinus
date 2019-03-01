@@ -5,7 +5,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import com.udstu.fraxinus.asgard.controller.*
 import com.udstu.fraxinus.asgard.dto.*
-import com.udstu.fraxinus.asgard.server.*
+import com.udstu.fraxinus.asgard.config.*
 import io.ktor.util.*
 import org.koin.ktor.ext.inject
 

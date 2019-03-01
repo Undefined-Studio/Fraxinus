@@ -1,11 +1,12 @@
 package com.udstu.fraxinus.asgard.service
 
 import com.udstu.fraxinus.asgard.cache.*
-import com.udstu.fraxinus.asgard.core.*
-import com.udstu.fraxinus.asgard.core.store.*
+import com.udstu.fraxinus.helheim.core.*
+import com.udstu.fraxinus.helheim.core.store.*
 import com.udstu.fraxinus.asgard.dto.*
 import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.asgard.server.*
+import com.udstu.fraxinus.asgard.config.*
+import com.udstu.fraxinus.asgard.toProfileModel
 import java.security.*
 import java.util.*
 
@@ -20,7 +21,7 @@ class SessionServerService(
 
         val token = authenticate(req.accessToken, null)
 
-        if (token.boundCharacter == null || token.boundCharacter.id != req.selectedProfile)
+        if (token.boundCharacter == null || token.boundCharacter!!.id != req.selectedProfile)
             throw AsgardException.ForbiddenOperationException(AsgardException.INVALID_PROFILE)
 
         authenticator.joinServer(token, req.serverId, serverIp)

@@ -1,8 +1,8 @@
 package com.udstu.fraxinus.asgard.cache
 
 import com.googlecode.concurrentlinkedhashmap.*
-import com.udstu.fraxinus.asgard.core.*
-import com.udstu.fraxinus.asgard.core.store.*
+import com.udstu.fraxinus.helheim.core.*
+import com.udstu.fraxinus.helheim.core.store.*
 import kotlinx.coroutines.*
 import java.time.*
 
@@ -37,12 +37,12 @@ class SessionAuthenticator(private val expireDuration: Duration = Duration.ofSec
         if (auth == null
             || System.currentTimeMillis() > auth.createdTime + expireDuration.toMillis()
             || auth.token.boundCharacter == null
-            || auth.token.boundCharacter.name != username
+            || auth.token.boundCharacter!!.name != username
             || (ip != null && ip != auth.ip)) {
             return null
         }
 
-        return CharacterStore.getCharacterById(auth.token.boundCharacter.id, false)
+        return CharacterStore.getCharacterById(auth.token.boundCharacter!!.id, false)
     }
 
     companion object {

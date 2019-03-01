@@ -3,3 +3,5 @@ rootProject.name = 'fraxinus'
 enableFeaturePreview("GRADLE_METADATA")
 
 include(":asgard")
+include(":helheim")
+include(":midgard")
