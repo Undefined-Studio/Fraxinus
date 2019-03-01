@@ -68,7 +68,14 @@ fun Application.startup() {
         single { SessionServerService(get(), get()) }
         single {
 
-            val keyStr = (environment.config.propertyOrNull("asgard.privateKey")?.getString() ?: "pri-key")
+            val privateKeyStr = (environment.config.propertyOrNull("asgard.privateKey")?.getString() ?: "pri-key")
+                .replace(" ", "")
+                .split('\n')
+                .filterNot {
+                    it.startsWith('-')
+                }.joinToString("")
+
+            val publicKeyStr = (environment.config.propertyOrNull("asgard.publicKey")?.getString()?.replace(" ", "") ?: "pub-key")
                 .replace(" ", "")
                 .split('\n')
                 .filterNot {
@@ -77,12 +84,12 @@ fun Application.startup() {
 
             val factory = KeyFactory.getInstance("rsa")
 
-            val spec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyStr))
+            val spec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyStr))
 
             val key = factory.generatePrivate(spec)
 
             ServerConfig(
-                environment.config.propertyOrNull("asgard.publicKey")?.getString() ?: "pub-key",
+                "-----BEGIN PUBLIC KEY-----\n$publicKeyStr\n-----END PUBLIC KEY-----\n",
                 key,
                 environment.config.propertyOrNull("asgard.serverName")?.getString() ?: "Asgard",
                 environment.config.propertyOrNull("asgard.implementationName")?.getString() ?: "asgard",
