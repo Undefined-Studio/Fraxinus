@@ -1,3 +1,4 @@
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'application'
 
 mainClassName = "io.ktor.server.netty.EngineMain"
@@ -20,4 +21,10 @@ dependencies {
     compile "mysql:mysql-connector-java:$mysql_version"
     compile 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
     testCompile "io.ktor:ktor-server-tests:$ktor_version"
+}
+
+shadowJar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
 }
