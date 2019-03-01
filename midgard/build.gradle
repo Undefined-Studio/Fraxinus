@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":helheim")
+    compile "io.ktor:ktor-auth:$ktor_version"
+    compile "io.ktor:ktor-auth-jwt:$ktor_version"
+}
