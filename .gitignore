@@ -5,4 +5,5 @@ build
 *.iml
 *.ipr
 *.iws
+node_modules
 dev.conf

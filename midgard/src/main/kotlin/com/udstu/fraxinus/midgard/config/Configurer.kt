@@ -1,9 +1,11 @@
 package com.udstu.fraxinus.midgard.config
 
 import com.udstu.fraxinus.helheim.config.*
+import com.udstu.fraxinus.midgard.service.AuthService
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.util.*
+import org.koin.dsl.module
 
 @KtorExperimentalAPI
 fun Application.startup() {
@@ -15,5 +17,11 @@ fun Application.startup() {
 
     installLogger()
 
+    val midgardDependencies = module {
+        single { AuthService() }
+    }
+
     installDataResource()
 }
+
+

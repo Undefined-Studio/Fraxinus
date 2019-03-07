@@ -1,6 +1,7 @@
 package com.udstu.fraxinus.midgard
 
 import com.udstu.fraxinus.midgard.config.startup
+import com.udstu.fraxinus.midgard.controller.*
 import io.ktor.application.*
 import io.ktor.routing.*
 import io.ktor.util.*
@@ -12,6 +13,6 @@ fun Application.module() {
     startup()
 
     routing {
-
+        authController()
     }
 }

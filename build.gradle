@@ -38,4 +38,3 @@ subprojects {
         kotlinOptions.jvmTarget = java_version
     }
 }
-

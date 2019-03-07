@@ -3,8 +3,29 @@ package com.udstu.fraxinus.helheim.core.store
 import com.udstu.fraxinus.helheim.core.*
 import com.udstu.fraxinus.helheim.dao.*
 import com.udstu.fraxinus.helheim.dao.entity.*
+import com.udstu.fraxinus.helheim.enum.*
+import org.slf4j.*
 
 object CharacterStore {
+    private val logger = LoggerFactory.getLogger(CharacterStore::class.java)
+
+    suspend fun createCharacter(character: Character, user: User) {
+        val profileEntity = ProfileEntity(
+            character.id,
+            character.name,
+            user.id,
+            ProfileModelType.STEVE.desc,
+            null,
+            null
+        )
+
+        Profiles.save(profileEntity).also {
+            logger.info(
+                "Create character(id: ${profileEntity.id}) for user(id: ${user.id})"
+            )
+        }
+    }
+
     suspend fun getCharacterByUserId(id: String, simple: Boolean = true): List<Character> {
         return Profiles.findByUserId(id).map {
             getCharacter(it, simple)

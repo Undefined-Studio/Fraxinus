@@ -3,12 +3,34 @@ package com.udstu.fraxinus.helheim.core.store
 import com.udstu.fraxinus.helheim.core.*
 import com.udstu.fraxinus.helheim.dao.*
 import com.udstu.fraxinus.helheim.dao.entity.*
+import com.udstu.fraxinus.helheim.enum.ProfileModelType
 import com.udstu.fraxinus.helheim.util.*
+import org.slf4j.LoggerFactory
 
 object UserStore {
+    private val logger = LoggerFactory.getLogger(UserStore::class.java)
+
     suspend fun getAuthenticatedUser(username: String, password: String): User? {
         return Users.findByUsernameAndPassword(username, password.encodeMD5())?.let {
             getUser(it)
+        }
+    }
+
+    suspend fun createUser(user: User, password: String) {
+        val userEntity = UserEntity(user.id, user.username, password.encodeMD5())
+
+        Users.save(userEntity).also {
+            logger.info("Created user(id: ${userEntity.id})")
+        }
+
+        user.properties.map {
+            UserPropertyEntity(null, it.getValue("name"), it.getValue("value"), userEntity.id)
+        }.forEach {
+            UserProperties.save(it)
+        }
+
+        user.characters.map {
+            CharacterStore.createCharacter(it, user)
         }
     }
 
