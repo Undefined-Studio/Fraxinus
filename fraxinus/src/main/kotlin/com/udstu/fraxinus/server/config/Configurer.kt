@@ -1,7 +1,7 @@
-package com.udstu.fraxinus.midgard.server.config
+package com.udstu.fraxinus.server.config
 
-import com.udstu.fraxinus.helheim.config.*
-import com.udstu.fraxinus.midgard.server.service.AuthService
+import com.udstu.fraxinus.common.config.*
+import com.udstu.fraxinus.server.service.AuthService
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.util.*

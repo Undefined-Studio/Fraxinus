@@ -1,11 +1,11 @@
-package com.udstu.fraxinus.asgard.service
+package com.udstu.fraxinus.authserver.service
 
-import com.udstu.fraxinus.helheim.core.*
-import com.udstu.fraxinus.helheim.core.store.*
-import com.udstu.fraxinus.helheim.dao.*
-import com.udstu.fraxinus.helheim.dao.entity.*
-import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.helheim.util.*
+import com.udstu.fraxinus.common.core.*
+import com.udstu.fraxinus.common.core.store.*
+import com.udstu.fraxinus.common.dao.*
+import com.udstu.fraxinus.common.dao.entity.*
+import com.udstu.fraxinus.authserver.exception.*
+import com.udstu.fraxinus.common.util.*
 import org.slf4j.*
 
 object TokenStore {

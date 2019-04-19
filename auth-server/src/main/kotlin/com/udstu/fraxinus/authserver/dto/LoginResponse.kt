@@ -1,4 +1,4 @@
-package com.udstu.fraxinus.asgard.dto
+package com.udstu.fraxinus.authserver.dto
 
 data class LoginResponse(
     val accessToken: String,

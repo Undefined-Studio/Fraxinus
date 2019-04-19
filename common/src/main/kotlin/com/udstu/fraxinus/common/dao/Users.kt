@@ -1,6 +1,6 @@
-package com.udstu.fraxinus.helheim.dao
+package com.udstu.fraxinus.common.dao
 
-import com.udstu.fraxinus.helheim.dao.entity.*
+import com.udstu.fraxinus.common.dao.entity.*
 import org.jetbrains.exposed.sql.*
 
 object Users : Table("user"), Repository<UserEntity, String> {

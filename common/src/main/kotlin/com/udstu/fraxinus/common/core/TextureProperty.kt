@@ -1,8 +1,8 @@
-package com.udstu.fraxinus.helheim.core
+package com.udstu.fraxinus.common.core
 
 import com.fasterxml.jackson.annotation.*
 import com.fasterxml.jackson.databind.*
-import com.udstu.fraxinus.helheim.core.base.*
+import com.udstu.fraxinus.common.core.base.*
 import java.util.*
 
 class TextureProperty(

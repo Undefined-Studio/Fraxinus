@@ -1,4 +1,4 @@
-package com.udstu.fraxinus.helheim.dao
+package com.udstu.fraxinus.common.dao
 
 import com.zaxxer.hikari.*
 import org.jetbrains.exposed.sql.*

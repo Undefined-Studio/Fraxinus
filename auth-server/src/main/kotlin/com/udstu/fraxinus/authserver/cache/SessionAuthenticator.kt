@@ -1,8 +1,8 @@
-package com.udstu.fraxinus.asgard.cache
+package com.udstu.fraxinus.authserver.cache
 
 import com.googlecode.concurrentlinkedhashmap.*
-import com.udstu.fraxinus.helheim.core.*
-import com.udstu.fraxinus.helheim.core.store.*
+import com.udstu.fraxinus.common.core.*
+import com.udstu.fraxinus.common.core.store.*
 import kotlinx.coroutines.*
 import java.time.*
 

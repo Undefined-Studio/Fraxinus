@@ -1,7 +1,7 @@
-package com.udstu.fraxinus.asgard
+package com.udstu.fraxinus.authserver
 
-import com.udstu.fraxinus.asgard.dto.*
-import com.udstu.fraxinus.helheim.core.*
+import com.udstu.fraxinus.authserver.dto.*
+import com.udstu.fraxinus.common.core.*
 
 fun Character.toProfileModel(): ProfileModel {
     if (properties == null)

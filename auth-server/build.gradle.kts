@@ -1,21 +1,20 @@
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'application'
+@file: Suppress("SpellCheckingInspection")
 
-mainClassName = "io.ktor.server.netty.EngineMain"
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-repositories {
-    mavenLocal()
-    jcenter()
-    maven { url 'https://kotlin.bintray.com/ktor' }
+plugins {
+    id("application")
 }
+
+val mainClassName = "io.ktor.server.netty.EngineMain"
 
 dependencies {
-    compile project(":helheim")
-    compile 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
+    implementation(project(":common"))
+    implementation(deps("concurrent-map"))
 }
 
-shadowJar {
+tasks.withType<ShadowJar> {
     manifest {
-        attributes 'Main-Class': mainClassName
+        attributes["Main-Class"] = mainClassName
     }
 }

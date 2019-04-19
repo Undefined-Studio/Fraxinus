@@ -1,10 +1,9 @@
-package com.udstu.fraxinus.helheim.core.store
+package com.udstu.fraxinus.common.core.store
 
-import com.udstu.fraxinus.helheim.core.*
-import com.udstu.fraxinus.helheim.dao.*
-import com.udstu.fraxinus.helheim.dao.entity.*
-import com.udstu.fraxinus.helheim.enum.ProfileModelType
-import com.udstu.fraxinus.helheim.util.*
+import com.udstu.fraxinus.common.core.*
+import com.udstu.fraxinus.common.dao.*
+import com.udstu.fraxinus.common.dao.entity.*
+import com.udstu.fraxinus.common.util.*
 import org.slf4j.LoggerFactory
 
 object UserStore {

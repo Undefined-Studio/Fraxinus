@@ -1,4 +1,4 @@
-package com.udstu.fraxinus.asgard.exception
+package com.udstu.fraxinus.authserver.exception
 
 import io.ktor.http.*
 import java.lang.*

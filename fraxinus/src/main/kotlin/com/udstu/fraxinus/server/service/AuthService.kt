@@ -1,9 +1,9 @@
-package com.udstu.fraxinus.midgard.server.service
+package com.udstu.fraxinus.server.service
 
-import com.udstu.fraxinus.midgard.server.dto.*
-import com.udstu.fraxinus.helheim.core.store.*
-import com.udstu.fraxinus.helheim.core.*
-import com.udstu.fraxinus.helheim.util.randomUnsignedUUID
+import com.udstu.fraxinus.server.dto.*
+import com.udstu.fraxinus.common.core.store.*
+import com.udstu.fraxinus.common.core.*
+import com.udstu.fraxinus.common.util.randomUnsignedUUID
 
 class AuthService {
 

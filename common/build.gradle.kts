@@ -1,5 +1,7 @@
+@file: Suppress("SpellCheckingInspection")
+
 dependencies {
-    compile "org.jetbrains.exposed:exposed:$exposed_version"
-    compile "com.zaxxer:HikariCP:$hikari_version"
-    compile "mysql:mysql-connector-java:$mysql_version"
+    compile(deps("exposed"))
+    implementation(deps("hikricp"))
+    implementation(deps("mysql"))
 }

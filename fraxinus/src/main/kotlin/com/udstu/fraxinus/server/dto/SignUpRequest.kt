@@ -1,4 +1,4 @@
-package com.udstu.fraxinus.midgard.server.dto
+package com.udstu.fraxinus.server.dto
 
 data class SignUpRequest(
     val username: String,

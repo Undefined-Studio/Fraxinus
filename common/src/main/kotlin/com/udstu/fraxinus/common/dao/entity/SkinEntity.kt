@@ -1,4 +1,4 @@
-package com.udstu.fraxinus.helheim.dao.entity
+package com.udstu.fraxinus.common.dao.entity
 
 import java.util.*
 

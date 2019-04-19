@@ -1,10 +1,10 @@
-package com.udstu.fraxinus.asgard.config
+package com.udstu.fraxinus.authserver.config
 
-import com.udstu.fraxinus.asgard.cache.*
-import com.udstu.fraxinus.asgard.dto.*
-import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.asgard.service.*
-import com.udstu.fraxinus.helheim.config.*
+import com.udstu.fraxinus.authserver.cache.*
+import com.udstu.fraxinus.authserver.dto.*
+import com.udstu.fraxinus.authserver.exception.*
+import com.udstu.fraxinus.authserver.service.*
+import com.udstu.fraxinus.common.config.*
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.response.*
@@ -33,19 +33,19 @@ fun Application.startup() {
     val asgardDependencies = module {
         single { AuthServerService() }
         single { SessionAuthenticator(Duration.ofSeconds(
-            environment.config.propertyOrNull("asgard.session.expireDuration")?.getString()?.toLong()?:15L
+            environment.config.propertyOrNull("authserver.session.expireDuration")?.getString()?.toLong()?:15L
         )) }
         single { SessionServerService(get(), get()) }
         single {
 
-            val privateKeyStr = (environment.config.propertyOrNull("asgard.privateKey")?.getString() ?: "pri-key")
+            val privateKeyStr = (environment.config.propertyOrNull("authserver.privateKey")?.getString() ?: "pri-key")
                 .replace(" ", "")
                 .split('\n')
                 .filterNot {
                     it.startsWith('-')
                 }.joinToString("")
 
-            val publicKeyStr = (environment.config.propertyOrNull("asgard.publicKey")?.getString()?.replace(" ", "") ?: "pub-key")
+            val publicKeyStr = (environment.config.propertyOrNull("authserver.publicKey")?.getString()?.replace(" ", "") ?: "pub-key")
                 .replace(" ", "")
                 .split('\n')
                 .filterNot {
@@ -61,10 +61,10 @@ fun Application.startup() {
             ServerConfig(
                 "-----BEGIN PUBLIC KEY-----\n$publicKeyStr\n-----END PUBLIC KEY-----\n",
                 key,
-                environment.config.propertyOrNull("asgard.serverName")?.getString() ?: "Asgard",
-                environment.config.propertyOrNull("asgard.implementationName")?.getString() ?: "asgard",
-                environment.config.propertyOrNull("asgard.implementationVersion")?.getString() ?: "dev",
-                environment.config.propertyOrNull("asgard.skinDomains")?.getList() ?: listOf(".*.com")
+                environment.config.propertyOrNull("authserver.serverName")?.getString() ?: "Asgard",
+                environment.config.propertyOrNull("authserver.implementationName")?.getString() ?: "authserver",
+                environment.config.propertyOrNull("authserver.implementationVersion")?.getString() ?: "dev",
+                environment.config.propertyOrNull("authserver.skinDomains")?.getList() ?: listOf(".*.com")
             )
         }
     }

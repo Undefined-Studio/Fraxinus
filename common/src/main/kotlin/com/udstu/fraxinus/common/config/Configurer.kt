@@ -1,8 +1,8 @@
-package com.udstu.fraxinus.helheim.config
+package com.udstu.fraxinus.common.config
 
 import com.fasterxml.jackson.annotation.*
 import com.fasterxml.jackson.databind.*
-import com.udstu.fraxinus.helheim.dao.*
+import com.udstu.fraxinus.common.dao.*
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.jackson.*

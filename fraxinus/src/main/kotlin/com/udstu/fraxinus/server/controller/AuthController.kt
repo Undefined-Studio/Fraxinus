@@ -1,7 +1,7 @@
-package com.udstu.fraxinus.midgard.server.controller
+package com.udstu.fraxinus.server.controller
 
-import com.udstu.fraxinus.midgard.server.dto.SignUpRequest
-import com.udstu.fraxinus.midgard.server.service.AuthService
+import com.udstu.fraxinus.server.dto.SignUpRequest
+import com.udstu.fraxinus.server.service.AuthService
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive

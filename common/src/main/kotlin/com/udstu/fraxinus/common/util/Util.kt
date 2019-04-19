@@ -1,4 +1,4 @@
-package com.udstu.fraxinus.helheim.util
+package com.udstu.fraxinus.common.util
 
 import java.security.*
 import java.util.*

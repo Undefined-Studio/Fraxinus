@@ -1,8 +1,8 @@
-package com.udstu.fraxinus.asgard.controller
+package com.udstu.fraxinus.authserver.controller
 
-import com.udstu.fraxinus.asgard.dto.*
-import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.asgard.service.*
+import com.udstu.fraxinus.authserver.dto.*
+import com.udstu.fraxinus.authserver.exception.*
+import com.udstu.fraxinus.authserver.service.*
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*

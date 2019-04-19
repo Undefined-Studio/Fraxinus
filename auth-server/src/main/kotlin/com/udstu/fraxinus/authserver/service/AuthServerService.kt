@@ -1,10 +1,10 @@
-package com.udstu.fraxinus.asgard.service
+package com.udstu.fraxinus.authserver.service
 
-import com.udstu.fraxinus.helheim.core.*
-import com.udstu.fraxinus.helheim.core.store.*
-import com.udstu.fraxinus.asgard.dto.*
-import com.udstu.fraxinus.asgard.exception.*
-import com.udstu.fraxinus.asgard.*
+import com.udstu.fraxinus.common.core.*
+import com.udstu.fraxinus.common.core.store.*
+import com.udstu.fraxinus.authserver.dto.*
+import com.udstu.fraxinus.authserver.exception.*
+import com.udstu.fraxinus.authserver.*
 import org.slf4j.*
 
 class AuthServerService {

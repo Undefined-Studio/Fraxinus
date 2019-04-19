@@ -1,43 +1,49 @@
-//buildscript {
-//    repositories {
-//        jcenter()
-//    }
-//
-//    dependencies {
-//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
-//    }
-//}
+@file: Suppress("SpellCheckingInspection")
 
-group 'com.udstu'
-version '0.1.0'
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-//subprojects {
-//    
-//    repositories {
-//        mavenLocal()
-//        jcenter()
-//        maven { url 'https://kotlin.bintray.com/ktor' }
-//    }
-//    
-//    if (project.name != "midgard") {
-//        apply plugin: 'kotlin'
-//        
-//        dependencies {
-//            compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-//            compile "io.ktor:ktor-server-netty:$ktor_version"
-//            compile "ch.qos.logback:logback-classic:$logback_version"
-//            compile "io.ktor:ktor-server-core:$ktor_version"
-//            compile "org.koin:koin-ktor:$koin_ktor_version"
-//            compile "io.ktor:ktor-jackson:$ktor_version"
-//            testCompile "io.ktor:ktor-server-tests:$ktor_version"
-//        }
-//
-//        compileKotlin {
-//            kotlinOptions.jvmTarget = java_version
-//        }
-//        compileTestKotlin {
-//            kotlinOptions.jvmTarget = java_version
-//        }
-//    }
-//}
+plugins {
+    id("kotlin") version Versions.KOTLIN_VERSION
+    id("shadow") version Versions.SHADOW_VERSION apply false
+    id("frontend") version Versions.KOTLIN_FRONTEND_VERSION apply false
+}
+
+group = "com.udstu"
+version = "0.1.0"
+
+subprojects {
+    if (project.name == "fraxinus-web") {
+        apply(plugin = "kotlin2js")
+        apply(plugin = "org.jetbrains.kotlin.frontend")
+
+    } else {
+        apply(plugin = "org.jetbrains.kotlin.jvm")
+        apply(plugin = "com.github.johnrengelman.shadow")
+
+        repositories {
+            maven {
+                url = uri("https://kotlin.bintray.com/ktor")
+            }
+        }
+
+        dependencies {
+            implementation(kotlin("stdlib-jdk8"))
+            implementation(kotlin("reflect"))
+            implementation(deps("ktor-server-netty"))
+            implementation(deps("logback"))
+            implementation(deps("ktor-server-core"))
+            implementation(deps("koin-ktor"))
+            implementation(deps("ktor-jackson"))
+            testImplementation(deps("ktor-server-test"))
+        }
+
+        tasks.withType<KotlinCompile> {
+            kotlinOptions.jvmTarget = Versions.JAVA_VERSION
+        }
+    }
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}
