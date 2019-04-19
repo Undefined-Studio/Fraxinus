@@ -6,6 +6,7 @@ plugins {
     id("kotlin") version Versions.KOTLIN_VERSION
     id("shadow") version Versions.SHADOW_VERSION apply false
     id("frontend") version Versions.KOTLIN_FRONTEND_VERSION apply false
+    id("serialization") version Versions.KOTLIN_VERSION apply false
 }
 
 group = "com.udstu"
@@ -14,6 +15,7 @@ version = "0.1.0"
 subprojects {
     if (project.name == "fraxinus-web") {
         apply(plugin = "kotlin2js")
+        apply(plugin = "kotlinx-serialization")
         apply(plugin = "org.jetbrains.kotlin.frontend")
 
     } else {

@@ -15,4 +15,7 @@ object Versions {
     const val KOTLINX_HTML_VERSION = "0.6.10"
     const val REACT_KOTLIN_VERSION = "16.6.0-pre.69-kotlin-$KOTLIN_VERSION"
     const val REACT_ROUTER_KOTLIN_VERSION = "4.3.1-pre.69-kotlin-$KOTLIN_VERSION"
+    const val REDUX_KOTLIN_VERSION = "4.0.0-pre.69-$KOTLIN_VERSION"
+    const val REACT_REDUX_KOTLIN_VERSION = "5.0.7-pre.69-kotlin-$KOTLIN_VERSION"
+    const val SERIALIZATION_VERSION = "0.11.0"
 }

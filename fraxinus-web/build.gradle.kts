@@ -17,6 +17,9 @@ dependencies {
     implementation(deps("kotlin-react"))
     implementation(deps("kotlin-react-dom"))
     implementation(deps("kotlin-react-router-dom"))
+    implementation(deps("kotlinx-serialization-runtime-js"))
+    implementation(deps("kotlin-redux"))
+    implementation(deps("kotlin-react-redux"))
     testImplementation(kotlin("test-js"))
 }
 

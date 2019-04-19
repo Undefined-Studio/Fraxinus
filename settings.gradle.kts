@@ -12,6 +12,9 @@ pluginManagement {
             if (requested.id.id == "frontend") {
                 useModule("org.jetbrains.kotlin:kotlin-frontend-plugin:${requested.version}")
             }
+            if (requested.id.id == "serialization") {
+                useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
+            }
         }
 
         repositories {

@@ -20,6 +20,9 @@ object Dependencies {
     val kotlinReactRouterDom = "org.jetbrains:kotlin-react-router-dom:${Versions.REACT_ROUTER_KOTLIN_VERSION}"
     val ktorAuth = "io.ktor:ktor-auth:${Versions.KTOR_VERSION}"
     val ktorAuthJwt = "io.ktor:ktor-auth-jwt:${Versions.KTOR_VERSION}"
+    val kotlinxSerializationRuntimeJs = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.SERIALIZATION_VERSION}"
+    val kotlinRedux = "org.jetbrains:kotlin-redux:${Versions.REDUX_KOTLIN_VERSION}"
+    val kotlinReactRedux = "org.jetbrains:kotlin-react-redux:${Versions.REACT_REDUX_KOTLIN_VERSION}"
 }
 
 fun deps(module: String): String {
