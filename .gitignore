@@ -7,4 +7,3 @@ build
 *.iws
 node_modules
 dev.conf
-web
